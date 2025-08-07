@@ -1,50 +1,49 @@
 import express from "express";
 import axios from "axios";
-import * as cheerio from "cheerio"; // ✅
-
+import * as cheerio from "cheerio";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
+
+app.get("/", (_, res) => {
+  res.send("API de JKAnime funcionando 🎉");
+});
 
 app.get("/search", async (req, res) => {
-  const { q } = req.query;
+  const query = req.query.q?.toString() || "";
 
-  if (!q || typeof q !== "string") {
-    return res.status(400).json({ error: "Parámetro 'q' requerido" });
+  if (!query) {
+    return res.status(400).json({ error: "Falta el parámetro ?q=" });
   }
 
   try {
-    const url = `https://jkanime.net/buscar/${encodeURIComponent(q)}/`;
-    const { data } = await axios.get(url);
-    const $ = cheerio.load(data);
+    const searchUrl = `https://jkanime.net/buscar/${encodeURIComponent(query)}/`;
+    const { data: html } = await axios.get(searchUrl);
+    const $ = cheerio.load(html);
 
     const results: any[] = [];
 
     $(".anime__item").each((_, el) => {
       const title = $(el).find(".anime__item__text h5 a").text().trim();
       const href = $(el).find(".anime__item__text h5 a").attr("href");
-      const image = $(el).find(".anime__item__pic").attr("data-setbg");
+      const img = $(el).find(".anime__item__pic").attr("data-setbg");
 
       if (title && href) {
         results.push({
           title,
-          href: `https://jkanime.net${href}`,
-          image: image || ""
+          href: href.startsWith("http") ? href : `https://jkanime.net${href}`,
+          image: img || ""
         });
       }
     });
 
     res.json(results);
-  } catch (err) {
-    console.error("Error en /search", err);
+  } catch (error) {
+    console.error("[/search] Error:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
-app.get("/", (_, res) => {
-  res.send("🎉 API JKAnime funcionando.");
-});
-
 app.listen(PORT, () => {
-  console.log(`Servidor en puerto ${PORT}`);
+  console.log("Servidor en puerto", PORT);
 });
