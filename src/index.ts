@@ -5,7 +5,6 @@ import cheerio from "cheerio";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Endpoint: /search?q=naruto
 app.get("/search", async (req, res) => {
   const { q } = req.query;
 
@@ -42,9 +41,9 @@ app.get("/search", async (req, res) => {
 });
 
 app.get("/", (_, res) => {
-  res.send("JKAnime API funcionando 🎉");
+  res.send("🎉 API JKAnime funcionando.");
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`Servidor en puerto ${PORT}`);
 });
