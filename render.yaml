@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: jkanime-api
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    branch: main
+    plan: free
+    region: oregon
