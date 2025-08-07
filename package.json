@@ -4,15 +4,15 @@
   "description": "API no oficial para JKAnime",
   "type": "module",
   "scripts": {
-    "start": "node dist/index.mjs",
-    "build": "tsc"
+    "build": "npm install && tsc",
+    "start": "node dist/index.mjs"
   },
- "dependencies": {
-  "axios": "^1.6.8",
-  "cheerio": "^1.0.0-rc.12",
-  "express": "^4.19.2",
-  "typescript": "^5.4.5",
-  "@types/node": "^20.11.30",
-  "@types/express": "^4.17.21"
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.19.2",
+    "typescript": "^5.4.5",
+    "@types/node": "^20.11.30",
+    "@types/express": "^4.17.21"
   }
 }
