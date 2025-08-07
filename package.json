@@ -1,0 +1,22 @@
+{
+  "name": "jkanime-api",
+  "version": "1.0.0",
+  "description": "API no oficial para JKAnime",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts",
+    "start": "node dist/index.mjs",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}
