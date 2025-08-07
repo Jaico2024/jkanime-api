@@ -2,8 +2,8 @@
   "name": "jkanime-api",
   "version": "1.0.0",
   "description": "API no oficial para JKAnime usando Puppeteer",
-  "main": "index.js",
-  "type": "commonjs",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js"
   },
@@ -13,8 +13,5 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "keywords": ["api", "jkanime", "puppeteer", "express"],
-  "author": "Jaico",
-  "license": "MIT"
+  }
 }
