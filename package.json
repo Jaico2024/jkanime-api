@@ -4,7 +4,6 @@
   "description": "API no oficial para JKAnime",
   "type": "module",
   "scripts": {
-    "build": "npx playwright install --with-deps",
     "start": "node src/index.js"
   },
   "dependencies": {
