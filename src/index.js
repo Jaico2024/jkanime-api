@@ -20,23 +20,18 @@ app.get('/episodes/:slug', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.waitForSelector('#episodes-content', { timeout: 15000 });
 
-    const episodes = await page.evaluate(() => {
-      const episodeElements = document.querySelectorAll('#episodes-content .epcontent');
-      if (!episodeElements.length) {
-        console.warn('⚠️ No se encontró #episodes-content en el DOM.');
-        return [];
-      }
-      return Array.from(episodeElements).map(el => {
+    const episodes = await page.$$eval('#episodes-content .epcontent', els =>
+      els.map(el => {
         const href = el.querySelector('a')?.href;
         const title = el.querySelector('.cap_num span')?.textContent?.trim();
         return { title, href };
-      });
-    });
+      })
+    );
 
     await browser.close();
-
     console.log(`📺 Total de episodios extraídos: ${episodes.length}`);
     res.json({ episodes });
   } catch (error) {
