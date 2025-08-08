@@ -1,5 +1,8 @@
 import express from 'express';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
+puppeteer.use(StealthPlugin());
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,34 +12,23 @@ app.get('/episodes/:slug', async (req, res) => {
   const url = `https://jkanime.net/${slug}/`;
 
   try {
+    console.log(`🌐 Navegando a: ${url}`);
+
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36'
-    );
-
-    console.log(`🌐 Navegando a: ${url}`);
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-
-    // Espera a que cargue el contenedor de episodios (si no, lanza warning)
-    await page.waitForSelector('#episodes-content', { timeout: 10000 }).catch(() =>
-      console.warn('⚠️ No se encontró #episodes-content en el DOM.')
-    );
-
-    // Captura HTML para debug
-    const html = await page.content();
-    console.log('🧾 HTML (primeros 500 chars):', html.slice(0, 500));
-
-    // Captura de pantalla para verificar carga
-    await page.screenshot({ path: 'page.png' });
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
 
     const episodes = await page.evaluate(() => {
-      const items = document.querySelectorAll('#episodes-content .epcontent');
-      return Array.from(items).map(el => {
+      const episodeElements = document.querySelectorAll('#episodes-content .epcontent');
+      if (!episodeElements.length) {
+        console.warn('⚠️ No se encontró #episodes-content en el DOM.');
+        return [];
+      }
+      return Array.from(episodeElements).map(el => {
         const href = el.querySelector('a')?.href;
         const title = el.querySelector('.cap_num span')?.textContent?.trim();
         return { title, href };
@@ -49,7 +41,7 @@ app.get('/episodes/:slug', async (req, res) => {
     res.json({ episodes });
   } catch (error) {
     console.error('❌ Error al obtener episodios:', error.message);
-    res.status(500).json({ error: 'Error al obtener episodios' });
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
