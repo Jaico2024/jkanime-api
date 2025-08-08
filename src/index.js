@@ -1,5 +1,5 @@
 import express from 'express';
-import { chromium } from 'playwright'; // Playwright en vez de puppeteer
+import { chromium } from 'playwright';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,18 +16,16 @@ app.get('/episodes/:slug', async (req, res) => {
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
-    const page = await browser.newPage();
-
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
-    );
-
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: 45000 // ⏳ más tiempo
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
     });
 
-    // Espera explícita al contenedor de episodios
+    const page = await context.newPage();
+    await page.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 45000
+    });
+
     await page.waitForSelector('#episodes-content', { timeout: 10000 });
 
     const episodes = await page.evaluate(() => {
