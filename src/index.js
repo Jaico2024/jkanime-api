@@ -1,8 +1,5 @@
 import express from 'express';
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-
-puppeteer.use(StealthPlugin());
+import { chromium } from 'playwright';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,18 +10,14 @@ app.get('/episodes/:slug', async (req, res) => {
 
   try {
     console.log(`🌐 Navegando a: ${url}`);
-
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
-    await page.waitForSelector('#episodes-content', { timeout: 15000 });
+    await page.goto(url, { waitUntil: 'networkidle' });
 
-    const episodes = await page.$$eval('#episodes-content .epcontent', els =>
-      els.map(el => {
+    await page.waitForSelector('#episodes-content', { timeout: 20000 });
+
+    const episodes = await page.$$eval('#episodes-content .epcontent', elements =>
+      elements.map(el => {
         const href = el.querySelector('a')?.href;
         const title = el.querySelector('.cap_num span')?.textContent?.trim();
         return { title, href };
